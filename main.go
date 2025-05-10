@@ -31,11 +31,19 @@ func (cfg *api_config) reset_fileserver_hits(w http.ResponseWriter, r *http.Requ
 }
 
 func (cfg *api_config) write_fileserver_hits(w http.ResponseWriter, r *http.Request) {
-	r.Header.Set("Content-Type", "text/plain; charset=utf-8")
+	r.Header.Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(200)
 
 	var b []byte
-	_, err := w.Write(fmt.Appendf(b, "Hits: %d", cfg.fileserver_hits.Load()))
+	html := fmt.Sprintf(`
+	<html>
+		<body>
+			<h1>Welcome, Chirpy Admin</h1>
+			<p>Chirpy has been visited %d times!</p>
+		</body>
+	</html>
+	`, cfg.fileserver_hits.Load())
+	_, err := w.Write(fmt.Append(b, html))
 	if err != nil {
 		panic("the Write went wrong...")
 	}
@@ -56,8 +64,8 @@ func main() {
 			panic("the Write went wrong...")
 		}
 	})
-	serve_mux.HandleFunc("GET /api/metrics", cfg.write_fileserver_hits)
-	serve_mux.HandleFunc("POST /api/reset", cfg.reset_fileserver_hits)
+	serve_mux.HandleFunc("GET /admin/metrics", cfg.write_fileserver_hits)
+	serve_mux.HandleFunc("POST /admin/reset", cfg.reset_fileserver_hits)
 
 	server := http.Server{
 		Addr:    ":8080",
