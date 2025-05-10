@@ -46,7 +46,8 @@ func main() {
 	cfg := &api_config{}
 
 	serve_mux.Handle("/app/", cfg.increment_fileserver_hits(http.StripPrefix("/app", http.FileServer(http.Dir(".")))))
-	serve_mux.HandleFunc("GET /healthz", func(rw http.ResponseWriter, req *http.Request) {
+
+	serve_mux.HandleFunc("GET /api/healthz", func(rw http.ResponseWriter, req *http.Request) {
 		req.Header.Set("Content-Type", "text/plain; charset=utf-8")
 		rw.WriteHeader(200)
 
@@ -55,8 +56,8 @@ func main() {
 			panic("the Write went wrong...")
 		}
 	})
-	serve_mux.HandleFunc("GET /metrics", cfg.write_fileserver_hits)
-	serve_mux.HandleFunc("POST /reset", cfg.reset_fileserver_hits)
+	serve_mux.HandleFunc("GET /api/metrics", cfg.write_fileserver_hits)
+	serve_mux.HandleFunc("POST /api/reset", cfg.reset_fileserver_hits)
 
 	server := http.Server{
 		Addr:    ":8080",
